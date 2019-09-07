@@ -18,11 +18,9 @@ import com.example.hook.jsbridgewebview.WebviewGlobals
 import com.example.hook.myjswebview.MyjsWebview
 import android.content.pm.PackageManager
 import android.content.ComponentName
-
-
-
-
-
+import android.view.KeyEvent
+import android.widget.Toast
+import android.view.KeyEvent.KEYCODE_BACK
 
 
 class MainActivity : AppCompatActivity(), AnkoLogger {
@@ -55,8 +53,8 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
         enableNotify()
         // anko
-        //startService<MyNotifyService>("pkg" to "com.eg.android.AlipayGphone")
-        startService<MyNotifyService>("pkg" to "com.tencent.mm")
+        startService<MyNotifyService>("pkg" to "com.eg.android.AlipayGphone")
+        //startService<MyNotifyService>("pkg" to "com.tencent.mm")
         // 用了bind方式
 
         //initService()
@@ -95,10 +93,6 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     override fun onDestroy() {
         super.onDestroy()
 
-//        if(isBound) {
-//            unbindService(conn)
-//            isBound = false
-//        }
     }
 
     fun enableNotify() {
@@ -132,9 +126,9 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     }
 
     fun initBridge() {
-        //bridge_webview.loadUrl("http://www.listenmi.cn")
+        bridge_webview.loadUrl("http://www.listenmi.cn")
         //bridge_webview.loadUrl("http://192.168.0.104:8080")
-        bridge_webview.loadUrl("file:///android_asset/web.html")
+        //bridge_webview.loadUrl("file:///android_asset/web.html")
 
         bridge_webview.setDefaultHandler(BridgeHandler() {
                 data, function ->
@@ -199,6 +193,25 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             }
         }
     }
+
+    var firstTime: Long = 0
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        val secondTime = System.currentTimeMillis()
+
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (secondTime - firstTime < 2000) {
+                System.exit(0)
+            } else {
+                Toast.makeText(applicationContext, "再按一次返回键退出", Toast.LENGTH_SHORT).show()
+                firstTime = System.currentTimeMillis()
+            }
+
+            return true
+        }
+
+        return super.onKeyDown(keyCode, event)
+    }
+
 
     //5.0以上版本，由于api不一样，要单独处理
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
